@@ -2,6 +2,8 @@ import discord
 import random
 from discord.ext import commands
 
+notShowCogs = ["ownerOnly", "events"]
+
 # Unimported part
 class MyHelp(commands.HelpCommand):
     def __init__(self):
@@ -15,7 +17,7 @@ class MyHelp(commands.HelpCommand):
 
         for cog in mapping:
             try:
-                if cog.qualified_name.startswith("!"):
+                if cog.qualified_name in notShowCogs:
                     continue
                 embed.add_field(name=f"**{cog.qualified_name.capitalize()}**", value=f"`{self.clean_prefix}help {cog.qualified_name}`", inline=True)
             except:
@@ -26,7 +28,7 @@ class MyHelp(commands.HelpCommand):
         await self.get_destination().send(embed=embed)
 
     async def send_cog_help(self, cog):
-        if cog.qualified_name.startswith("!"):
+        if cog.qualified_name in notShowCogs:
             return
 
         empty = ""
