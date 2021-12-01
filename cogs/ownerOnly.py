@@ -217,7 +217,7 @@ class ownerOnly(commands.Cog):
                 await ctx.send(embed=embed)
 
 
-    @commands.command(description="Blacklist a use from using the bot")
+    @commands.command(description="Blacklist a use from using the bot", usage="<user>")
     @commands.is_owner()
     async def blacklist(self, ctx, user: commands.MemberConverter):
         """
@@ -233,7 +233,7 @@ class ownerOnly(commands.Cog):
         utils.jjson.write_json(data, "blacklist")
         await ctx.send(f"Blacklisted {user.name}.")
 
-    @commands.command(description="Remove a user from blacklist")
+    @commands.command(description="Remove a user from blacklist", usage="<user>")
     @commands.is_owner()
     async def unblacklist(self, ctx, user: commands.MemberConverter):
         """
@@ -245,5 +245,6 @@ class ownerOnly(commands.Cog):
         utils.jjson.write_json(data, "blacklist")
         await ctx.send(f"Unblacklisted {user.name}.")
 
-    def setup(client):
-        client.add_cog(ownerOnly(client))
+
+def setup(client):
+    client.add_cog(ownerOnly(client))

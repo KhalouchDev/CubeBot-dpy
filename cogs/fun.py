@@ -111,11 +111,11 @@ class fun(commands.Cog):
     async def whosGay(self, ctx):
         memberList = []
 
-        for member in memberList:
+        for member in ctx.guild.members:
             if not member.bot:
                 memberList.append(member.name)
-        gay = random.choice(memberList)
-        await ctx.send(f"{gay} is  gay")
+
+        await ctx.send(f"`{random.choice(memberList)}` is gay")
 
     @commands.command(description="How much of a gay are you?", usage="[member]")
     async def gayrate(self, ctx, member:commands.MemberConverter = None):

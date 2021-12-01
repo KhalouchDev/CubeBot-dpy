@@ -1,5 +1,4 @@
 # Standard imports
-from collections import defaultdict
 import os
 import json
 import logging
@@ -14,8 +13,7 @@ from discord.ext import commands
 # Local code
 from utils.mongo import Document
 
-cwd = Path(__file__).parent[0]
-cwd = str(cwd)
+cwd = str(Path(__file__).parent[0])
 print(f'{cwd}\n-----')
 
 async def get_prefix(client, message):
@@ -37,7 +35,7 @@ async def get_prefix(client, message):
 defaultPrefix = '$'
 secret_file = json.load(open(cwd+'/client_config/secrets.json'))
 owner_id = 658338910312857640
-intents = discord.Intesnts.all()
+intents = discord.Intents.all()
 intents.memebers = True
 client = commands.Bot(command_prefix=defaultPrefix, case_insensitive=True, owner_id=owner_id, intents=intents)
 

@@ -9,8 +9,7 @@ def get_path():
      - cwd (string) : Path to main.py directory
     """
     cwd = Path(__file__).parent[1]
-    cwd = str(cwd)
-    return cwd
+    return str(cwd)
 
 def read_json(filename):
     """
