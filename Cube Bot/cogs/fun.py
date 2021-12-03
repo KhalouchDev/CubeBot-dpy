@@ -9,6 +9,7 @@ from aiohttp import ClientSession
 class fun(commands.Cog):
     def __init__(self, client):
         self.client = client
+        self.colors = random.choice(client.color_list)
 
     # Events
     @commands.Cog.listener()
@@ -52,7 +53,7 @@ class fun(commands.Cog):
                 Знамя советское, знамя народное
                 Пусть от победы к победе ведёт!
                 """
-        embed = discord.Embed(title="Soviet Anthem", color=random.choice(self.client.color_list))
+        embed = discord.Embed(title="Soviet Anthem", color=self.colors)
 
         embed.add_field(name="\uFEFF", value=anthem)
         await ctx.send(embed)
@@ -79,43 +80,50 @@ class fun(commands.Cog):
 
         if not member:
             member = ctx.author
-        embed = discord.Embed(title="**pp size machine**", color = random.choice(self.client.color_list))
+        embed = discord.Embed(title="**pp size machine**", color = self.colors)
         embed.add_field(name=f"{member.name}'s pp", value=f"8{random.choice(randomChoice)}D", inline=False)
         await ctx.send(embed=embed)
 
     @commands.command(description="I see you forgot the english alphabet....")
     async def alphabets(self, ctx):
         alphabet = ["a", "b", "c", "d", "e", "f", "g","h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
-        for letter in alphabet:
-            asyncio.sleep(0.5)
-            await ctx.send(f"```{letter}\n```")
+        embed = discord.Embed(title="_The English alphabets_", description="Never forget the alphabets again!",
+                            color=self.colors)
+        embed.add_field(name=', '.join(alphabet), value=f"\uFEFF")
+
+        await ctx.send(embed=embed)
 
     @commands.command(description="stea- Look at someones avatar", aliases=['pfp'], usage="[member]")
     async def avatar(self, ctx, member:commands.MemberConverter = None):
         if not member:
             member = ctx.author
         
-        embed = discord.Embed(title=f"{member.name}'s avatar", color=random.choice(self.client.color_list))
+        embed = discord.Embed(title=f"{member.name}'s avatar", color=self.colors)
         embed.set_image(url=member.avatar_url)
         embed.set_footer(text=f"{member.name}'s ID: {member.id}")
 
         await ctx.send(embed=embed)
 
-    @commands.command(description="Look at the servers avatar", aliases=['serverPfp', 'guildAvatar', 'guildPfp'])
-    async def serverAvatar(self, ctx):
-        embed = discord.embed(title=ctx.guild.name, color=random.choice(self.client.color_list))
+    @commands.command(description="Look at the servers avatar", aliases=["guildIcon"])
+    async def serverIcon(self, ctx):
+        if not ctx.guild.icon:
+            return await ctx.send("This server has no icon")
+        embed = discord.Embed(title=f"{ctx.guild.name}'s icon", color=self.colors)
         embed.set_image(url=ctx.guild.icon_url)
         embed.set_footer(text=f"Guild ID: {ctx.guild.id}")
 
-    @commands.command(description="Find out who is gay in the server", enabled=False, hidden=True)
+        await ctx.send(embed=embed)
+
+    @commands.command(description="Find out who is gay in the server")
     async def whosGay(self, ctx):
+
         memberList = []
 
         for member in ctx.guild.members:
             if not member.bot:
                 memberList.append(member.name)
-
-        await ctx.send(f"`{random.choice(memberList)}` is gay")
+        gay = random.choice(memberList)
+        await ctx.send(f"`{gay}` is gay")
 
     @commands.command(description="How much of a gay are you?", usage="[member]")
     async def gayrate(self, ctx, member:commands.MemberConverter = None):

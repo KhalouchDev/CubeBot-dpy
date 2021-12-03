@@ -34,11 +34,12 @@ class utilities(commands.Cog):
 
     @commands.command(description="Ways to support me", aliases=['vote', 'invite', 'beansfight'])
     async def support(self, ctx):
-        embed = discord.Embed(title="Support Me!!", description="\uFEFF", color=self.colors, timestamp=ctx.message.created_at)
+        embed = discord.Embed(title="Support Me!!", description="Thank you for everyone who supported!",
+                            color=self.colors, timestamp=ctx.message.created_at)
         embed.add_field(name="Invite", value="[Click Here](https://discord.com/api/oauth2/authorize?client_id=840647743654723614&permissions=8&scope=bot)")
         embed.add_field(name="Vote", value="[Click Here](https://top.gg/bot/840647743654723614)")
         embed.add_field(name="Download Beans Fight", value="[Andriod Download](https://play.google.com/store/apps/details?id=com.KhalouchDev.BeansFight)")
-        embed.set_footer("$help")
+        embed.set_footer(text="$help")
 
         await ctx.send(embed=embed)
 

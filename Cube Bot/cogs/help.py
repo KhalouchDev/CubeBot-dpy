@@ -37,8 +37,8 @@ class MyHelp(commands.HelpCommand):
         embed.set_footer(text="[Vote On Topgg](https://top.gg/bot/840647743654723614)")
 
         for command in cog.get_commands():
-            commandAliases = ", ".join(command.aliases) if command.alaises else "No Alaises Found"
-            embed.add_field(name=f"**```{command.name}```**", value=f'**{command.description}**\nAliases: `{commandAliases}`', color=random.choice(self.context.bot.color_list))
+            commandAliases = ", ".join(command.aliases) if command.aliases else "No Alaises Found"
+            embed.add_field(name=f"**```{command.name}```**", value=f'**{command.description}**\nAliases: `{commandAliases}`')
         
         channel = self.get_destination()
         await channel.send(embed=embed)
@@ -59,7 +59,7 @@ class MyHelp(commands.HelpCommand):
     
     async def send_command_help(self, command):
         embed = discord.Embed(title=f"**{self.get_command_name(command)}**", description=f"{command.description}", color=random.choice(self.context.bot.color_list))
-        embed.set_footer(text=random.choice("[Vote On Topgg](https://top.gg/bot/840647743654723614)", "$help"))
+        embed.set_footer(text="[Vote On Topgg](https://top.gg/bot/840647743654723614)")
         aliase = command.aliases
 
         if aliase:

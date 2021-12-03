@@ -7,7 +7,8 @@ import discord
 from dateutil.relativedelta import relativedelta
 from discord.errors import Forbidden, HTTPException, InvalidArgument
 from discord.ext.commands.core import check
-from discord import commands, tasks
+from discord.ext import commands, tasks
+import discord
 from copy import deepcopy
 
 #local import
@@ -50,7 +51,7 @@ class moderation(commands.Cog):
     @tasks.loop(minutes=5)
     async def check_current_mutes(self):
         currentTime = datetime.datetime.now()
-        mutes = deepcopy(self.client.mutes_users)
+        mutes = deepcopy(self.client.muted_users)
         
         for key, value in mutes.items():
             if value['muteDuration'] is None:
@@ -92,7 +93,7 @@ class moderation(commands.Cog):
 
     @commands.command(description="Kicks a member", usage="<member> [reason]")
     @commands.has_guild_permissions(kick_members=True)
-    @commands.bot_has_guild_permissions(kick_member=True)
+    @commands.bot_has_guild_permissions(kick_members=True)
     @commands.guild_only()
     async def kick(self, ctx, member:commands.MemberConverter, *, reason="No reason provided"):
         if member.id == ctx.bot.user.id:
@@ -158,7 +159,7 @@ class moderation(commands.Cog):
             pass
 
     @commands.command(description="Mutes a member", usage="<user> [time] [reason]")
-    @commands.has_guild_permissions(manage_members=True)
+    @commands.has_guild_permissions(kick_members=True) #Change
     @commands.bot_has_guild_permissions(manage_roles=True)
     @commands.guild_only()
     async def mute(self, ctx, member: commands.MemberConverter, time: timeConverter = None, *, reason="No reason provided"):
@@ -228,7 +229,7 @@ class moderation(commands.Cog):
                 pass
 
     @commands.command(description="Unmute a member", usage="<member> [reason]")
-    @commands.has_guild_permissions(manage_members=True)
+    @commands.has_guild_permissions(kick_members=True)
     @commands.bot_has_guild_permissions(manage_roles=True)
     @commands.guild_only()
     async def unmute(self, ctx, member:commands.MemberConverter, *, reason="No reason provided"):
@@ -262,7 +263,7 @@ class moderation(commands.Cog):
             pass
 
     @commands.command(description="Send a member to prison", usage='<member> [reason]', enabled=False, hidden=True)
-    @commands.has_permissions(manage_members=True)
+    @commands.has_permissions(manage_guild=True)
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True)
     @commands.guild_only()
     async def prison(self, ctx, member:commands.MemberConverter, *, reason="No reason provided"):
@@ -302,7 +303,7 @@ class moderation(commands.Cog):
             await ctx.send("Operation failed")
 
     @commands.command(description="Remove a member from prison", usage="<member> [reason]", enabled=False, hidden=True)
-    @commands.has_guild_permissions(manage_members=True)
+    @commands.has_guild_permissions(manage_guild=True)
     @commands.bot_has_guild_permissions(manage_roles=True, manage_channels=True)
     @commands.guild_only()
     async def unprison(self, ctx, member: commands.MemberConverter, reason="No reason provided"):
@@ -397,7 +398,7 @@ class moderation(commands.Cog):
             await ctx.send("An invalid keyword argument was given")
 
     @commands.command(description="Warn a member", usage="<member> [reason]")
-    @commands.has_guild_permissions(manage_members=True)
+    @commands.has_guild_permissions(manage_guild=True)
     @commands.guild_only()
     async def warn(self, ctx, member:commands.MemberConverter, *, reason):
         if member.id == ctx.author.id:
@@ -427,7 +428,7 @@ class moderation(commands.Cog):
             pass
 
     @commands.command(description="Remove a warning from a member", usage="<member> [warning number] [reason]")
-    @commands.has_guild_permissions(manage_members=True)
+    @commands.has_guild_permissions(manage_guild=True)
     @commands.guild_only()
     async def deletewarn(self, ctx, member:commands.MemberConverter, warn: int = None, *, reason="No reason provided"):
         filter_dict = {"user_id": member.id, "guild_id": member.guild.id}

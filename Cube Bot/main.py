@@ -13,7 +13,8 @@ from discord.ext import commands
 # Local code
 from utils.mongo import Document
 
-cwd = str(Path(__file__).parent[0])
+cwd = Path(__file__).parents[0]
+cwd = str(cwd)
 print(f'{cwd}\n-----')
 
 async def get_prefix(client, message):
@@ -32,20 +33,17 @@ async def get_prefix(client, message):
         return commands.when_mentioned_or(client.defaultPrefix)(client, message)
 
 # Defining stuff
-defaultPrefix = '$'
+defaultPrefix = '&'
 secret_file = json.load(open(cwd+'/client_config/secrets.json'))
 owner_id = 658338910312857640
 intents = discord.Intents.all()
-intents.memebers = True
+intents.members = True
 client = commands.Bot(command_prefix=defaultPrefix, case_insensitive=True, owner_id=owner_id, intents=intents)
 
-client.config_token - secret_file["token"]
-client.dbl_token = secret_file["dbl-token"]
-client._connection_url = secret_file["mongo"]
+client.config_token = secret_file["token"]
+client.connection_url = secret_file["mongo"]
 client.joke_api_key = secret_file["x-rapidapi-key"]
 client.weather_api_key = secret_file["weather-api-key"]
-
-client.topggpy = topgg.DBLClient(client, client.dbl_token, autopost=True, post_sharp_count=True)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -91,7 +89,7 @@ async def on_ready():
 
     print("Intialized Database\n-----")
     print(f"Currently in {len(client.guilds)} guilds\n-----")
-    print("Cube Bot is ready!")
+    print(f"{client.user.name} is ready!")
 
 @client.event
 async def on_message(message):
@@ -106,7 +104,7 @@ async def on_message(message):
 
     # Whenever the bot is tagged, respond with its prefix
     if message.content.startswith(f"<@!{client.user.id}>") and len(message.content) == len(f"<@!{client.user.id}>"):
-        data = await client.prefixes.get_by_id(message.guild.id)
+        data = await client.prefixes.find_by_id(message.guild.id)
         if not data or "prefix" not in data:
             prefix = client.defaultPrefix
         else:
@@ -122,7 +120,8 @@ if __name__ == '__main__':
     # defing database objects
     client.mongo = motor.motor_asyncio.AsyncIOMotorClient(str(client.connection_url))
     client.db = client.mongo["electron"]
-    client.prefixes = Document(client.db, "mutes")
+    client.prefixes = Document(client.db, "prefixes")
+    client.mutes = Document(client.db, "mutes")
     client.warns = Document(client.db, "warns")
     client.logsChannel = Document(client.db, "logsChannel")
     client.welcomeChannel = Document(client.db, "welcomeChannel")
