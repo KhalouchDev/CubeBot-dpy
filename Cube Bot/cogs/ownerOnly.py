@@ -58,7 +58,7 @@ class ownerOnly(commands.Cog):
     @commands.command(description="Enable a command", usage="<command>")
     @commands.is_owner()
     async def enable(self, ctx, *, command):
-        command = self.bot.get_command(command)
+        command = self.client.get_command(command)
         if command is None:
             return await ctx.send("Command not found")
         
@@ -68,7 +68,7 @@ class ownerOnly(commands.Cog):
     @commands.command(description="Disable a command", usage="<command>")
     @commands.is_owner()
     async def disable(self, ctx, *, command):
-        command = self.bot.get_command(command)
+        command = self.client.get_command(command)
         if command is None:
             return await ctx.send("Command not found")
         elif ctx.command == command or command.name == "enabled":
@@ -80,7 +80,7 @@ class ownerOnly(commands.Cog):
     @commands.command(description="Hide a command", usage="<command>")
     @commands.is_owner()
     async def hide(self, ctx, *, command):
-        command = self.bot.get_command(command)
+        command = self.client.get_command(command)
         if command is None:
             return await ctx.send("Command not found")
         
@@ -90,14 +90,14 @@ class ownerOnly(commands.Cog):
     @commands.command(description="Unhide a command", usage="<command>")
     @commands.is_owner()
     async def unhide(self, ctx, *, command):
-        command = self.bot.get_command(command)
+        command = self.client.get_command(command)
         if command is None:
             return await ctx.send("Command not found")
         
         command.hidden = False
         await ctx.send(f"Unhid `{command.qualified_name}`")
     
-    @commands.command(name="reload", description="Reload all/one of the bots cogs")
+    @commands.command(name="reload", description="Reload all/one of the bots cogs", usage="[cog]")
     @commands.is_owner()
     async def reload(self, ctx, cog=None):
         if not cog:
@@ -123,7 +123,8 @@ class ownerOnly(commands.Cog):
                     # if the file does not exist
                     embed.add_field(name=f"Failed to reload: `{ext}`", value="This cog does not exist.", inline=False)
 
-    @commands.command(description="Unload all/one of the bot's cogs")
+    # Review
+    @commands.command(description="Unload all/one of the bot's cogs", usage=)
     @commands.is_owner()
     async def unload(self, ctx, cog=None):
         if not cog:
