@@ -10,7 +10,7 @@ from discord.ext import commands
 import utils.jjson
 from utils.util import Pag
 
-class MemberRoles(commands.MemberConverter):
+class MemberRoles(commands.Converter):
     async def convert(self, ctx, argument):
         member = await super().convert(ctx, argument)
         return [role.name for role in member.roles[1:]]
@@ -49,7 +49,7 @@ class utilities(commands.Cog):
 
         if not city:
             return await ctx.send("Please specify a city")
-        elif city == "Israel" or city == "isreal":
+        elif city.lower() == "isreal" or city.lower() == "israil":
             return await ctx.send(":middle_finger:")
 
         city_name = city
@@ -88,39 +88,51 @@ class utilities(commands.Cog):
     async def serverStats(self, ctx):
         botlist = []
         memberlist = []
+        roleslist = []
         for member in ctx.guild.members:
             if member.bot:
                 botlist.append(member)
             else:
                 memberlist.append(member)
+                
+        for role in ctx.guild.roles:
+            roleslist.append(role.name)
 
-        embed = discord.Embed(title=ctx.guild.name, description=ctx.guild.description,
+        embed = discord.Embed(title=ctx.guild.name, description=ctx.guild.description if ctx.guild.description else "\uFEFF",
                             thumbnail=ctx.guild.icon_url, color=self.colors, timestamp=ctx.message.created_at)
         embed.add_field(name="Member count", value=len(memberlist), inline=True)
         embed.add_field(name="Bot count", value=len(botlist), inline=True)
-        embed.add_field(name="Roles", value=f"```{','.join(ctx.guild.roles)}```", inline=False)
+        embed.add_field(name="Roles", value=f"```{', '.join(roleslist) if ctx.guild.roles else 'No Roles found'}```", inline=False)
         embed.add_field(name="Owner", value=f"<@!{ctx.guild.owner_id}>", inline=True)
         embed.add_field(name="Created at", value=ctx.guild.created_at)
-        embed.set_footed(text=f"ID: {ctx.guild.id}")
+        embed.set_footer(text=f"ID: {ctx.guild.id}")
 
         await ctx.send(embed=embed)
 
+    #Review [Perms]
     @commands.command(description="Information about a member", usage="<member>")
     @commands.guild_only()
-    async def memberinfo(self, ctx, member: commands.MemberConverter):
+    async def memberinfo(self, ctx, member: commands.MemberConverter=None):
+        permslist = []
+        roleslist = []        
         if not member:
-            member = ctx.guild.author
+            member = ctx.message.author
+        for role in member.roles:
+            roleslist.append(role.name)
+        for perm in member.guild_permissions:
+            permslist.append(str(perm))
 
         embed = discord.Embed(title=f"{member.name}#{member.discriminator}", description=member.mention,
                             thumbnail=member.avatar_url, color=self.colors, timestamp=ctx.message.created_at)
         embed.add_field(name="Joined", value=member.joined_at, inline=True)
         embed.add_field(name="Created at", value=member.created_at, inline=True)
-        embed.add_field(name="Guild roles", value=f"```{','.join(member.roles)}```", inline=False)
-        embed.add_field(name="Guild Permissions", value=','.join(member.guild_permissions), inline=False)
+        embed.add_field(name="Guild roles", value=f"```{', '.join(roleslist)}```", inline=False)
+        embed.add_field(name="Guild Permissions", value=', '.join(permslist), inline=False)
         embed.set_footer(text=f"ID: {member.id}")
 
         await ctx.send(embed=embed)
 
+    #Review [Channel Creation time]
     @commands.command(description="Shows the stats of the channel")
     @commands.bot_has_guild_permissions(manage_channels=True)
     @commands.guild_only()

@@ -11,7 +11,7 @@ class events(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         print(f"{self.__class__.__name__} Cog has been loaded\n-----")
-
+        
     @commands.Cog.listener()
     async def on_member_join(self, member):
 
@@ -94,6 +94,12 @@ class events(commands.Cog):
 
         elif isinstance(error, commands.NoPrivateMessage):
             await ctx.send("This command cannot be used in DMs")
+        
+        elif isinstance(error, commands.MemberNotFound):
+            await ctx.send("Member not found")
+        
+        elif isinstance(error, commands.RoleNotFound):
+            await ctx.send("Role not found")
 
         elif isinstance(error, commands.CommandOnCooldown):
             # If the command is currently on cooldown trip this

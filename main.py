@@ -18,6 +18,16 @@ cwd = str(cwd)
 print(f'{cwd}\n-----')
 
 async def get_prefix(client, message):
+    """A function to get the custom prefix of a guild
+
+    Args:
+        client (Any): The bot
+        message (str): The message that activated the function
+
+    Returns:
+        prefix (str): The prefix in a string
+    """
+    
     # If dm's
     if not message.guild:
         return commands.when_mentioned_or(client.defaultPrefix)(client, message)
@@ -38,7 +48,7 @@ secret_file = json.load(open(cwd+'/client_config/secrets.json'))
 owner_id = 658338910312857640
 intents = discord.Intents.all()
 intents.members = True
-client = commands.Bot(command_prefix=defaultPrefix, case_insensitive=True, owner_id=owner_id, intents=intents)
+client = commands.Bot(command_prefix=get_prefix, case_insensitive=True, owner_id=owner_id, intents=intents)
 
 client.config_token = secret_file["token"]
 client.connection_url = secret_file["mongo"]
@@ -47,7 +57,7 @@ client.weather_api_key = secret_file["weather-api-key"]
 
 logging.basicConfig(level=logging.INFO)
 
-client.version = 2.0
+client.version = 2.7
 
 client.owner_id = owner_id
 client.defaultPrefix = defaultPrefix
@@ -119,17 +129,14 @@ if __name__ == '__main__':
 
     # defing database objects
     client.mongo = motor.motor_asyncio.AsyncIOMotorClient(str(client.connection_url))
-    client.db = client.mongo["electron"]
+    client.db = client.mongo["Cube-Bot"]
     client.prefixes = Document(client.db, "prefixes")
     client.mutes = Document(client.db, "mutes")
     client.warns = Document(client.db, "warns")
-    client.logsChannel = Document(client.db, "logsChannel")
     client.welcomeChannel = Document(client.db, "welcomeChannel")
     client.goodbyeChannel = Document(client.db, "goodbyeChannel")
     client.onMemberJoinDM = Document(client.db, "memberJoinDM")
     client.command_usage = Document(client.db, "command_usage")
-    client.suggestions = Document(client.db, "suggestions")
-    client.bugReports = Document(client.db, "bugs")
 
     # Running cogs
     for file in os.listdir(cwd+"/cogs"):

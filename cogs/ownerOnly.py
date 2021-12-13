@@ -11,6 +11,7 @@ from utils.util import Pag
 class ownerOnly(commands.Cog):
     def __init__(self, client):
         self.client = client
+        self.colors = random.choice(self.client.color_list)
 
     #Events
     @commands.Cog.listener()
@@ -76,55 +77,51 @@ class ownerOnly(commands.Cog):
         
         command.enabled = False
         await ctx.send(f"Disbaled `{command.qualified_name}`")
-
-    @commands.command(description="Hide a command", usage="<command>")
-    @commands.is_owner()
-    async def hide(self, ctx, *, command):
-        command = self.client.get_command(command)
-        if command is None:
-            return await ctx.send("Command not found")
-        
-        command.hidden = True
-        await ctx.send(f"Hid `{command.qualified_name}`")
-
-    @commands.command(description="Unhide a command", usage="<command>")
-    @commands.is_owner()
-    async def unhide(self, ctx, *, command):
-        command = self.client.get_command(command)
-        if command is None:
-            return await ctx.send("Command not found")
-        
-        command.hidden = False
-        await ctx.send(f"Unhid `{command.qualified_name}`")
     
-    @commands.command(name="reload", description="Reload all/one of the bots cogs", usage="[cog]")
+    @commands.command(description="Reload all/one cog", usage="[cog]")
     @commands.is_owner()
     async def reload(self, ctx, cog=None):
         if not cog:
             # No cog, means we reload all cogs
             async with ctx.typing():
-                embed = discord.Embed(title="Reloading all cogs!", color=0x808080, timestamp=ctx.message.created_at)
+                embed = discord.Embed(
+                    title="Reloading all cogs!", color=self.colors, timestamp=ctx.message.created_at)
                 for ext in os.listdir("./cogs/"):
                     if ext.endswith(".py") and not ext.startswith("_"):
                         try:
                             self.client.unload_extension(f"cogs.{ext[:-3]}")
                             self.client.load_extension(f"cogs.{ext[:-3]}")
-                            embed.add_field(name=f"Reloaded: `{ext}`", value='\uFEFF', inline=False)
+                            embed.add_field(
+                                name=f"Reloaded: `{ext}`", value='\uFEFF', inline=False)
                         except Exception as e:
-                            embed.add_field(name=f"Failed to reload: `{ext}`", value=e, inline=False)
+                            embed.add_field(
+                                name=f"Failed to reload: `{ext}`", value=e, inline=False)
                         await asyncio.sleep(0.5)
                 await ctx.send(embed=embed)
         else:
             # reload the specific cog
             async with ctx.typing():
-                embed = discord.Embed(title=f"Reloading {cog}!", color=0x808080, timestamp=ctx.message.created_at)
+                embed = discord.Embed(
+                    title=f"Reloading {cog}!", color=self.colors, timestamp=ctx.message.created_at)
                 ext = f"{cog.lower()}.py"
                 if not os.path.exists(f"./cogs/{ext}"):
                     # if the file does not exist
-                    embed.add_field(name=f"Failed to reload: `{ext}`", value="This cog does not exist.", inline=False)
+                    embed.add_field(
+                        name=f"Failed to reload: `{ext}`", value="This cog does not exist.", inline=False)
+                elif ext.endswith(".py") and not ext.startswith("_"):
+                    try:
+                        self.client.unload_extension(f"cogs.{ext[:-3]}")
+                        self.client.load_extension(f"cogs.{ext[:-3]}")
+                        embed.add_field(
+                            name=f"Reloaded: `{ext}`", value='\uFEFF', inline=False)
+                    except Exception:
+                        desired_trace = traceback.format_exc()
+                        embed.add_field(
+                            name=f"Failed to Reload: `{ext}`", value=desired_trace, inline=False)
+                await ctx.send(embed=embed)
 
     # Review
-    @commands.command(description="Unload all/one of the bot's cogs", usage=)
+    @commands.command(description="Unload all/one of the bot's cogs", usage=["cog"])
     @commands.is_owner()
     async def unload(self, ctx, cog=None):
         if not cog:

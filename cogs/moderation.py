@@ -83,13 +83,19 @@ class moderation(commands.Cog):
 
 
     # Commands
+    #Review [not responding]
     @commands.command(description="Clears specific number of messages", aliases=['purge'], usage="<amount>")
     @commands.has_guild_permissions(manage_messages=True)
     @commands.bot_has_guild_permissions(manage_messages=True)
     @commands.guild_only()
     async def clear(self, ctx, amount: int):
-        await ctx.channel.purge(limit=amount+1)
-        await ctx.send(f"{amount} messages have been cleared", delete_after=10)
+        try:
+            await ctx.channel.purge(limit=amount+1)
+            await ctx.send(f"{amount} messages have been cleared", delete_after=10)
+        except Forbidden:
+            await ctx.send("I don't have the required permissions to delete messages of this channel")
+        except HTTPException:
+            await ctx.send("Purgin messages failed, please try again later")
 
     @commands.command(description="Kicks a member", usage="<member> [reason]")
     @commands.has_guild_permissions(kick_members=True)
@@ -98,12 +104,17 @@ class moderation(commands.Cog):
     async def kick(self, ctx, member:commands.MemberConverter, *, reason="No reason provided"):
         if member.id == ctx.bot.user.id:
             return await ctx.send("I can't kick myself :)")
-
+        try:
+            await member.kick(reason=reason)
+        except Forbidden:
+            return await ctx.send(f"I don't have the required permissions to kick `{member.name}`")
+        except HTTPException:
+            return await ctx.send(f"Failed to kick `{member.name}`, please try again later")
+        
         embed = discord.Embed(title=f"`{member.name}` has been kicked from the server", description=reason,
                             thumbnail=member.avatar_url, color=self.colors,
                             timestamp=datetime.datetime.utcnow())
         await ctx.send(embed=embed)
-        await member.kick(reason=reason)
 
         DMembed = discord.Embed(title=f"You have been kicked from `{ctx.guild.name}`", description=reason,
                             thumbnail=ctx.guild.icon_url, color=self.colors,
@@ -120,18 +131,23 @@ class moderation(commands.Cog):
     async def ban(self, ctx, member: commands.MemberConverter, *, reason="No reason provided"):
         if member.id == ctx.bot.user.id:
             return await ctx.send("I can't ban my self :)")
+        try:
+            await member.ban(reason=reason)
+        except Forbidden:
+            return await ctx.send(f"I don't have the required permissions to ban `{member.name}`")
+        except HTTPException:
+            return await ctx.send(f"Failed to ban `{member.name}`, please try again later")
         
         embed = discord.Embed(title=f"`{member.name}` has been banned from the server", description=reason,
                             thumbnail=member.avatar_url, color=self.colors,
                             timestamp=datetime.datetime.utcnow())
         await ctx.send(embed=embed)
-        await member.ban(reason=reason)
         
         DMembed = discord.Embed(title=f"You have been banned from `{ctx.guild.name}`", description=reason,
                             thumbnail=ctx.guild.icon_url, color=self.colors,
                             timestamp=datetime.datetime.utcnow())
         try:
-            await member.send(embed=embed)
+            await member.send(embed=DMembed)
         except:
             pass
 
@@ -143,7 +159,12 @@ class moderation(commands.Cog):
         if not member:
             return await ctx.send(f"`{member.name}` is not banned")
 
-        await ctx.guild.unban(member, reason=reason)
+        try:
+            await ctx.guild.unban(member, reason=reason)
+        except Forbidden:
+            return await ctx.send(f"I don't have the required permissions to unban `{member.name}`")
+        except HTTPException:
+            return await ctx.send(f"Unbanning `{member.name}` failed, please try again later")
         
         embed = discord.Embed(title=f"Unbanned `{member.name}`", description=reason,
                             thumbnail=member.avatar_url, color=self.colors,
@@ -300,7 +321,7 @@ class moderation(commands.Cog):
         except Forbidden:
             await ctx.send(f"I don't have the required perms to send `{member.name}` to prison")
         except HTTPException:
-            await ctx.send("Operation failed")
+            await ctx.send("Operation failed, please try again later")
 
     @commands.command(description="Remove a member from prison", usage="<member> [reason]", enabled=False, hidden=True)
     @commands.has_guild_permissions(manage_guild=True)

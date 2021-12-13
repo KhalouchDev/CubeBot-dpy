@@ -33,31 +33,32 @@ class config(commands.Cog):
         await self.client.prefixes.unset({"_id": ctx.guild.id, "prefix": 1})
         await ctx.send(f"The server's prefix has been set to `{self.client.defaultPrefix}`")
 
-    @commands.group(name="set", invoke_without_command=True, description="Use with subcommands", usage="<subcommand>")
-    async def _set(self, ctx):
+    @commands.group(invoke_without_command=True, description="Use with subcommands", usage="<subcommand>")
+    async def set(self, ctx):
         await ctx.send("Invalid sub-command passed")
-
-    @_set.command(name="logsChannel",aliases=["logschannel"], description="Set a logs channel for the bot!", invoke_without_command=True)
+    """
+    @set.command(aliases=["logschannel"], description="Set a logs channel for the bot!", invoke_without_command=True)
     @commands.has_guild_permissions(administrator=True)
     @commands.cooldown(1, 5, commands.BucketType.default)
     @commands.guild_only()
-    async def _logsChannel(self, ctx, channel: discord.TextChannel):
+    async def logsChannel(self, ctx, channel: discord.TextChannel):
         
         #Insert data in database
         await self.client.logsChannel.upsert({"_id": ctx.guild.id, "logsChannelID": channel.id})
         await ctx.send(f"#{channel.name} has been set as Logs channel!")
+    """
 
-    @_set.command(name="welcomeChannel",aliases=["welcomechannel"], description="Set a channel to welcome new members in!", invoke_without_command=True)
+    @set.command(aliases=["welcomechannel"], description="Set a channel to welcome new members in!", invoke_without_command=True)
     @commands.has_guild_permissions(administrator=True)
     @commands.cooldown(1, 5, commands.BucketType.default)
     @commands.guild_only()
-    async def _welcomeChannel(self, ctx, channel: discord.TextChannel):
+    async def welcomeChannel(self, ctx, channel: discord.TextChannel):
         
         #Insert data in database
         await self.client.welcomeChannel.upsert({"_id": ctx.guild.id, "welcomeingChannelID": channel.id})
         await ctx.send(f"#{channel.name} has been set as Welcoming channel!")
 
-    @_set.command(name="goodbyeChannel",aliases=["goodbyechannel"], description="Set a channel to say bye for members leaving!", invoke_without_command=True)
+    @set.command(name="goodbyeChannel",aliases=["goodbyechannel"], description="Set a channel to say bye for members leaving!", invoke_without_command=True)
     @commands.has_guild_permissions(administrator=True)
     @commands.cooldown(1, 5, commands.BucketType.default)
     @commands.guild_only()
@@ -67,7 +68,7 @@ class config(commands.Cog):
         await self.client.goodbyeChannel.upsert({"_id": ctx.guild.id, "goodbyeChannelID": channel.id})
         await ctx.send(f"#{channel.name} has been set as goodbye message channel!")
 
-    @_set.command(name="joinDM", aliases=["onJoinDM"], descreption="Sends members a DM when they Join")
+    @set.command(name="joinDM", aliases=["onJoinDM"], descreption="Sends members a DM when they Join")
     @commands.has_guild_permissions(administrator=True)
     @commands.cooldown(1, 5, commands.BucketType.default)
     @commands.guild_only()
