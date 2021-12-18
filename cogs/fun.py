@@ -4,11 +4,19 @@ import discord
 
 from discord.ext import commands
 from aiohttp import ClientSession
+from PIL import Image, ImageDraw, ImageOps
+from io import BytesIO
 
 class fun(commands.Cog):
     def __init__(self, client):
         self.client = client
         self.colors = random.choice(client.color_list)
+        self.canvas = Image.open("shrug.png")
+        
+    def draw_face(base: Image, head: Image, destination: tuple, size: tuple, rotation: int):
+        face = head.resize(size, Image.LANCZOS)
+        face = face.rotate(rotation, expand=True)
+        base.paste(face, destination, face)
 
     # Events
     @commands.Cog.listener()
@@ -65,10 +73,24 @@ class fun(commands.Cog):
                    "Don't count on it", "My reply is no", "My sources say no", "Outlook not so good", "Very doubtfull"]
         await ctx.send(f'Question: {question}\nAnswer: {random.choice(answers)}')
 
-    @commands.command(description="I don't know", aliases=["i dont know"])
-    async def idk(self, ctx):
-        await ctx.send("¯\_(ツ)_/¯")
-
+    @commands.command(description="¯\_(ツ)_/¯")
+    async def shrug(self, ctx, member: commands.MemberConverter=None):
+        base = self.canvas.copy()
+        user = member or ctx.author
+        head = Image.open(BytesIO(await user.avatar_url.read()))
+        mask = Image.new("L", head.size, 0)
+        draw = ImageDraw.Draw(mask)
+        draw.ellipse((0, 0) + head.size, fill=255)
+        head = ImageOps.fit(head, mask.size, centering=(0.5, 0.5))
+        head.putalpha(mask)
+        self.draw_face(base, head, (155, 70), (78, 78), 15)
+        self.draw_face(base, head, (351, 43), (36, 36), -4)
+        self.draw_face(base, head, (350, 225), (40, 40), 5)
+        result = BytesIO()
+        base.save(result, format="png")
+        result.seek(0)
+        await ctx.send(file=discord.File(fp=result, filename="shrug.png"))
+        
     @commands.command()
     async def thumbsup(self, ctx):
         await ctx.send(f"░░░░░░░░░░░░░░░░░░░░░░█████████░░░░░░░░░\n░░███████░░░░░░░░░░███▒▒▒▒▒▒▒▒███░░░░░░░\n░░█▒▒▒▒▒▒█░░░░░░░███▒▒▒▒▒▒▒▒▒▒▒▒▒███░░░░\n░░░█▒▒▒▒▒▒█░░░░██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██░░\n░░░░█▒▒▒▒▒█░░░██▒▒▒▒▒██▒▒▒▒▒▒██▒▒▒▒▒███░\n░░░░░█▒▒▒█░░░█▒▒▒▒▒▒████▒▒▒▒████▒▒▒▒▒▒██\n░░░█████████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██\n░░░█▒▒▒▒▒▒▒▒▒▒▒▒█▒▒▒▒▒▒▒▒▒█▒▒▒▒▒▒▒▒▒▒▒██\n░██▒▒▒▒▒▒▒▒▒▒▒▒▒█▒▒▒██▒▒▒▒▒▒▒▒▒▒██▒▒▒▒██\n██▒▒▒███████████▒▒▒▒▒██▒▒▒▒▒▒▒▒██▒▒▒▒▒██\n█▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█▒▒▒▒▒▒████████▒▒▒▒▒▒▒██\n██▒▒▒▒▒▒▒▒▒▒▒▒▒▒█▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██░\n░█▒▒▒███████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██░░░\n░██▒▒▒▒▒▒▒▒▒▒████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█░░░░░\n░░████████████░░░█████████████████░░░░░░")
