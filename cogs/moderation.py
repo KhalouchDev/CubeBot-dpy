@@ -354,7 +354,7 @@ class moderation(commands.Cog):
             await ctx.send("Operation failed")
 
     # Sub-commands not working
-    @commands.group(description="Group of commands to help in role management", aliases=['roles'], invoke_wihtout_command=True, usage="<subcommand>")
+    @commands.group(description="Group of commands to help in role management", aliases=['roles'], invoke_wihtout_command=True, usage="<subcommand>", enabled=False)
     @commands.guild_only()
     async def role(self, ctx):
         await ctx.send("Invalid sub-command passed")
