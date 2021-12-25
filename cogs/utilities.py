@@ -1,13 +1,10 @@
 import discord
-import datetime
 import platform
 import random
 import requests
-import asyncio
 from discord.ext import commands
 
 # Local imports
-import utils.jjson
 from utils.util import Pag
 
 class MemberRoles(commands.Converter):

@@ -15,7 +15,7 @@ class events(commands.Cog):
     @commands.Cog.listener()
     async def on_member_join(self, member):
 
-        onMemberJoinDmCOLLECTION = await self.clioent.onMemberJoinDM.find(member.guild.id)
+        onMemberJoinDmCOLLECTION = await self.client.onMemberJoinDM.find(member.guild.id)
         if onMemberJoinDmCOLLECTION:
             dm = onMemberJoinDmCOLLECTION['DMcontent']
             try:

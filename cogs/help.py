@@ -46,7 +46,7 @@ class MyHelp(commands.HelpCommand):
     async def send_group_help(self, group):
         groupAliases = ", ".join(group.aliases) if group.aliases else "No Aliases Found"
         embed = discord.Embed(title=f"**{group.name}**", description=f"{group.description}\nAliases: `{groupAliases}`", color=random.choice(self.context.bot.color_list))
-        embed.set_footer(text=random.choice("[Vote On Topgg](https://top.gg/bot/840647743654723614)", "$help"))
+        embed.set_footer(text="[Vote Now](https://top.gg/bot/840647743654723614)")
         for index, command in enumerate(group.commands):
             commandAliases = ", ".join(command.aliases) if command.aliases else "No Aliases Found"
             if command.usage is not None:

@@ -6,7 +6,6 @@ discord==1.7.3
 discord.py==1.7.3
 idna==3.3
 multidict==5.2.0
-Pillow==8.4.0
 python-dateutil==2.8.2
 six==1.16.0
 typing_extensions==4.0.1

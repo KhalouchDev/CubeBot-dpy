@@ -83,7 +83,7 @@ class moderation(commands.Cog):
 
 
     # Commands
-    #Review [not responding]
+    # Not working
     @commands.command(description="Clears specific number of messages", aliases=['purge'], usage="<amount>")
     @commands.has_guild_permissions(manage_messages=True)
     @commands.bot_has_guild_permissions(manage_messages=True)
@@ -97,6 +97,7 @@ class moderation(commands.Cog):
         except HTTPException:
             await ctx.send("Purgin messages failed, please try again later")
 
+    # Review DM message
     @commands.command(description="Kicks a member", usage="<member> [reason]")
     @commands.has_guild_permissions(kick_members=True)
     @commands.bot_has_guild_permissions(kick_members=True)
@@ -122,7 +123,7 @@ class moderation(commands.Cog):
         try:
             await member.send(embed=DMembed)
         except:
-            pass
+            print("Failed to send DM to user")
 
     @commands.command(description="Bans a member", usage="<member> [reason]")
     @commands.has_guild_permissions(ban_members=True)
@@ -151,6 +152,7 @@ class moderation(commands.Cog):
         except:
             pass
 
+    # How dis work?
     @commands.command(description="Unbans a member", usage="<member> [reason]")
     @commands.has_guild_permissions(ban_members=True)
     @commands.guild_only()
@@ -179,6 +181,7 @@ class moderation(commands.Cog):
         except:
             pass
 
+    # Time Duration is wrong (in message)
     @commands.command(description="Mutes a member", usage="<user> [time] [reason]")
     @commands.has_guild_permissions(kick_members=True) #Change
     @commands.bot_has_guild_permissions(manage_roles=True)
@@ -202,7 +205,7 @@ class moderation(commands.Cog):
         data = {'_id': member.id, 'mutedAt': datetime.datetime.now(), 'muteDuration': time or None,
                 'muteBy': ctx.author.id, 'guildId': ctx.guild.id}
         await self.client.mutes.upsert(data)
-        self.client.meted_users[member.id] = data
+        self.client.muted_users[member.id] = data
 
         await member.add_roles(role)
 
@@ -282,8 +285,9 @@ class moderation(commands.Cog):
             await member.send(embed=DMembed)
         except:
             pass
-
-    @commands.command(description="Send a member to prison", usage='<member> [reason]', enabled=False, hidden=True)
+    
+    # Prisoner role creation not working
+    @commands.command(description="Send a member to prison", usage='<member> [reason]')
     @commands.has_permissions(manage_guild=True)
     @commands.bot_has_permissions(manage_channels=True, manage_roles=True)
     @commands.guild_only()
@@ -305,9 +309,10 @@ class moderation(commands.Cog):
             for channel in ctx.guild.channels:
                 if channel.name != "prisoners-talk":
                     await channel.set_permissions(prisonerRole, speak=False, send_messages=False,
-                                                read_messaged=False, read_message_history=False)
+                                                read_messages=False, read_message_history=False)
         try:
-            await member.edit_(roles=[])
+            await member.edit(roles=[])
+            await member.add_roles(prisonerRole)
             embed = discord.Embed(title=f"`{member.name}` has been sent to prison", description=reason,
                                 thumbnail=member.avatar_url, color=self.colors, timestamp=datetime.datetime.utcnow())
             DMembed = discord.Embed(title=f"You have been sent to prison in `{ctx.guild.name}` server", description=reason,
@@ -323,7 +328,7 @@ class moderation(commands.Cog):
         except HTTPException:
             await ctx.send("Operation failed, please try again later")
 
-    @commands.command(description="Remove a member from prison", usage="<member> [reason]", enabled=False, hidden=True)
+    @commands.command(description="Remove a member from prison", usage="<member> [reason]")
     @commands.has_guild_permissions(manage_guild=True)
     @commands.bot_has_guild_permissions(manage_roles=True, manage_channels=True)
     @commands.guild_only()
@@ -348,6 +353,7 @@ class moderation(commands.Cog):
         except HTTPException:
             await ctx.send("Operation failed")
 
+    # Sub-commands not working
     @commands.group(description="Group of commands to help in role management", aliases=['roles'], invoke_wihtout_command=True, usage="<subcommand>")
     @commands.guild_only()
     async def role(self, ctx):
@@ -403,21 +409,6 @@ class moderation(commands.Cog):
         except HTTPException:
             await ctx.send("Operation failed")
 
-    @commands.command(descrition="Create an new role", usage="<name> [permissions] [color] [hoist] [mentionable]", enabled=False, hidden=True)
-    @commands.has_guild_permissions(manage_roles=True)
-    @commands.bot_has_guild_permissions(manage_roles=True)
-    @commands.guild_only()
-    async def createrole(self, ctx, name:str="new role"):
-        try:
-            await ctx.guild.create_role(name=name)
-            await ctx.send(f"Created new role with name {name}")
-        except Forbidden:
-            await ctx.send(f"I don't have the required perms to create a role")
-        except HTTPException:
-            await ctx.send("Operation failed")
-        except InvalidArgument:
-            await ctx.send("An invalid keyword argument was given")
-
     @commands.command(description="Warn a member", usage="<member> [reason]")
     @commands.has_guild_permissions(manage_guild=True)
     @commands.guild_only()
@@ -433,7 +424,7 @@ class moderation(commands.Cog):
         warn_filter = {"user_id": member.id, "guild_id": member.guild.id, "number": current_warn_count,}
         warn_data = {"reason": reason, "timestamp": ctx.message.created_at, "warned_by": ctx.author.id}
 
-        await self.client.wanrns.upsert_custom(warn_filter, warn_data)
+        await self.client.warns.upsert_custom(warn_filter, warn_data)
 
         embed = discord.Embed(title=f"`{member.name}` has been warned", description=reason,
                             thumbnail=member.avatar_url, color=self.colors,
@@ -447,7 +438,8 @@ class moderation(commands.Cog):
             await member.send(embed=DMembed)
         except:
             pass
-
+    
+    # Does not send confirmation
     @commands.command(description="Remove a warning from a member", usage="<member> [warning number] [reason]")
     @commands.has_guild_permissions(manage_guild=True)
     @commands.guild_only()
@@ -465,6 +457,7 @@ class moderation(commands.Cog):
 
         await ctx.send(f"Warn number `{warn}` was not found for `{member.display_name}`")
     
+    # Does not send mention of warner in the embed
     @commands.command(description="List all warns of a member (can be used by all members)", usage="<member>")
     @commands.guild_only()
     async def warns(self, ctx, member:commands.MemberConverter):
@@ -472,7 +465,11 @@ class moderation(commands.Cog):
         warns = await self.client.warns.find_many_by_custom(warn_filter)
 
         if not bool(warns):
-            return await ctx.send(f"`{member.name}` has no warns")
+            embed = discord.Embed(title=f"`{member.name}` is a good member", description="He/She has no warns",
+                                  color=self.colors, timestamp=datetime.datetime.utcnow())
+            embed.set_footer(text=f"{self.client.defaultPrefix}help")
+            embed.set_thumbnail(url=member.avatar_url)
+            return await ctx.send(embed=embed)
 
         warns = sorted(warns, key=lambda x: x['number'])
 
@@ -486,7 +483,7 @@ class moderation(commands.Cog):
                             """
             pages.append(description)
 
-        await Pag(title=f"`{member.name}'s` warns", color=self.colors, entries=pages, length=1).start(ctx)
+        await Pag(title=f"`{member.name}'s` warns", color=self.colors, entries=pages, length=1, thumbnail=member.avatar_url).start(ctx)
 
 
 def setup(client):
