@@ -129,11 +129,10 @@ class utilities(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    #Review [Channel Creation time]
     @commands.command(description="Shows the stats of the channel")
     @commands.bot_has_guild_permissions(manage_channels=True)
     @commands.guild_only()
-    async def channelstats(self, ctx):
+    async def channelinfo(self, ctx):
         channel = ctx.channel
         embed = discord.Embed(title=f"Stats for **{channel.name}**", description=f"{'Category: {}'.format(channel.category.name) if channel.category else 'This channel is not in a category'}", color=random.choice(self.client.color_list))
         embed.add_field(name="Channel Guild", value=ctx.guild.name, inline=False)
