@@ -5,11 +5,14 @@ import asyncio
 import discord
 
 from dateutil.relativedelta import relativedelta
-from discord.errors import Forbidden, HTTPException, InvalidArgument
+from discord.errors import Forbidden, HTTPException
 from discord.ext.commands.core import check
 from discord.ext import commands, tasks
-import discord
+from discord_components import DiscordComponents, Button, ButtonStyle, InteractionType
 from copy import deepcopy
+
+from discord_components import component
+from discord_components.interaction import Interaction
 
 #local import
 from utils.util import Pag
@@ -83,19 +86,24 @@ class moderation(commands.Cog):
 
 
     # Commands
-    # Not working
-    """@commands.command(description="Clears specific number of messages", aliases=['purge'], usage="<amount>")
-    @commands.has_guild_permissions(manage_messages=True)
-    @commands.bot_has_guild_permissions(manage_messages=True)
-    @commands.guild_only()
-    async def clear(self, ctx, amount: int, *, reason="No reason provided"):
-        try:
-            ctx.channel.purge(limit=amount+1)
-            embed = discord.Embed(title=f"Purged `{amount} messages", description=reason,
-                                color=self.colors, timestamp=datetime.datetime.utcnow())
-            embed.set_footer(text=f"Command ran by: `{ctx.author.name}`", icon_url=ctx.author.avatar_url)
-        except Exception as e:
-            await ctx.send(e)"""
+    @commands.command()
+    async def test(self, ctx):
+        await ctx.send("This is a test",
+                       components=[
+                           Button(style=ButtonStyle.red, label="No"),
+                           Button(style=ButtonStyle.green, label="Yes")
+                           ]
+                       )
+        res = await self.client.wait_for("button_click")
+        if res.channel == ctx.channel:
+            if res.component.label == "Yes":
+                await ctx.send(f"{res.component.label} was clicked")
+                await res.respond(type=InteractionEventType.ChannelMessageWithSource ,content=f"{res.component.label} clicked")
+            else:
+                await ctx.send("No was clicked")
+            """
+            await res.respond(content=f"{res.component.label} clicked")
+            await ctx.send(f"{res.component.label} clicked")"""
     
     @commands.command(description="Clears messages from text channel", usage='<amount> [reason]')
     @commands.has_guild_permissions(manage_messages=True)
@@ -359,6 +367,8 @@ class moderation(commands.Cog):
         if warn:
             filter_dict["number"] = warn
         # Add confirmation to delete all warns here
+        if not warn:
+            pass
 
         was_deleted = await self.client.warns.delete_by_custom(filter_dict)
         if was_deleted and was_deleted.acknowledged:

@@ -9,6 +9,7 @@ import topgg
 from pathlib import Path
 import motor.motor_asyncio
 from discord.ext import commands
+from discord_components import DiscordComponents
 
 # Local code
 from utils.mongo import Document
@@ -93,6 +94,7 @@ async def on_ready():
     await client.change_presence(activity=discord.Game(f'{client.defaultPrefix}help'))
 
     currentMutes = await client.mutes.get_all()
+    DiscordComponents(client)
 
     for mute in currentMutes:
         client.muted_users[mute["_id"]] = mute
