@@ -84,19 +84,35 @@ class moderation(commands.Cog):
 
     # Commands
     # Not working
-    @commands.command(description="Clears specific number of messages", aliases=['purge'], usage="<amount>")
+    """@commands.command(description="Clears specific number of messages", aliases=['purge'], usage="<amount>")
     @commands.has_guild_permissions(manage_messages=True)
     @commands.bot_has_guild_permissions(manage_messages=True)
     @commands.guild_only()
-    async def clear(self, ctx, amount: int):
+    async def clear(self, ctx, amount: int, *, reason="No reason provided"):
+        try:
+            ctx.channel.purge(limit=amount+1)
+            embed = discord.Embed(title=f"Purged `{amount} messages", description=reason,
+                                color=self.colors, timestamp=datetime.datetime.utcnow())
+            embed.set_footer(text=f"Command ran by: `{ctx.author.name}`", icon_url=ctx.author.avatar_url)
+        except Exception as e:
+            await ctx.send(e)"""
+    
+    @commands.command(description="Clears messages from text channel", usage='<amount> [reason]')
+    @commands.has_guild_permissions(manage_messages=True)
+    @commands.bot_has_guild_permissions(manage_messages=True)
+    @commands.guild_only()
+    async def clear(self, ctx, amount: int, *, reason="No reason provided"):
         try:
             await ctx.channel.purge(limit=amount+1)
-            await ctx.send(f"{amount} messages have been cleared", delete_after=10)
-        except Forbidden:
-            await ctx.send("I don't have the required permissions to delete messages of this channel")
+            embed = discord.Embed(title=f"Purged `{amount}` messages", description=reason,
+                                color=self.colors, timestamp=datetime.datetime.utcnow())
+            embed.set_footer(text=f"Command ran by: {ctx.author.name}", icon_url=ctx.author.avatar_url) 
+            await ctx.send(embed=embed)
         except HTTPException:
-            await ctx.send("Purgin messages failed, please try again later")
-
+            await ctx.send("Operation Failed")
+        except Forbidden:
+            await ctx.send("I don't have the required permissions to clear messages from this chanel")
+            
     # Review DM message
     @commands.command(description="Kicks a member", usage="<member> [reason]")
     @commands.has_guild_permissions(kick_members=True)
