@@ -353,22 +353,16 @@ class moderation(commands.Cog):
         except HTTPException:
             await ctx.send("Operation failed")
 
-    # Sub-commands not working
-    @commands.group(description="Group of commands to help in role management", aliases=['roles'], invoke_wihtout_command=True, usage="<subcommand>", enabled=False)
-    @commands.guild_only()
-    async def role(self, ctx):
-        await ctx.send("Invalid sub-command passed")
-
-    @role.command(description="Remove a role from a member", usage="<member> <role> [reason]")
+    @commands.command(description="Remove a role from a member", usage="<member> <role> [reason]")
     @commands.has_guild_permissions(manage_roles=True)
     @commands.bot_has_guild_permissions(manage_roles=True)
     @commands.guild_only()
-    async def remove(self, ctx, member:commands.MemberConverter, role:commands.RoleConverter, *, reason="No reason provided"):
+    async def removeRole(self, ctx, member:commands.MemberConverter, role:commands.RoleConverter, *, reason="No reason provided"):
         if role not in member.roles:
             return await ctx.send(f"`{member.name}` doesn't have the `{role.name}` role")
 
         try:
-            await member.remove_role(role)
+            await member.remove_roles(role, reason=reason)
             embed = discord.Embed(title=f"Removed `{role.name}` role from `{member.name}`", description=reason,
                                 thumbnail=member.avatar_url, color=self.colors, timestamp=datetime.datetime.utcnow())
             DMembed = discord.Embed(title=f"`{role.name}` was removed from you in `{ctx.guild.name}` server", description=reason,
@@ -380,32 +374,6 @@ class moderation(commands.Cog):
                 pass
         except Forbidden:
             await ctx.send(f"I don't have the required perms to remove the `{role.name}` role from `{member.name}`")
-        except HTTPException:
-            await ctx.send("Operation failed")
-
-    @role.command(description="Clear all roles of a member", usage="<member> [reason]")
-    @commands.has_guild_permissions(manage_roles=True)
-    @commands.bot_has_guild_permissions(manage_roles=True)
-    @commands.guild_only()
-    async def clear(self, ctx, member:commands.MemberConverter, *, reason="No reason provided"):
-        try:
-            embed = discord.Embed(title=f"Cleared a total of `{len(member.roles)}` roles from `{member.name}`", description=reason,
-                                thumbnail=member.avatar_url, color=self.colors, timestamp=datetime.datetime.utcnow())
-            DMembed = discord.Embed(title=f"All your roles have been cleared in `{ctx.guild.name}` server", description=reason,
-                                    thumbnail=ctx.guild.icon_url, color=self.colors, timestamp=datetime.datetime.utcnow())
-            embed.add_field(name="Roles removed: ", value="```"+", ".join(member.roles)+"```")
-            DMembed.add_field(name="Roles removed: ", value="```"+", ".join(member.roles)+"```")
-
-            await member.edit(roles=[])
-            await ctx.send(embed=embed)
-            try:
-                await member.send(embed=DMembed)
-            except:
-                pass
-
-        except Forbidden:
-            await ctx.send(f"I don't have the required perms to clear the roles of `{member.name}`")
-            
         except HTTPException:
             await ctx.send("Operation failed")
 
