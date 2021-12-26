@@ -106,7 +106,6 @@ class utilities(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    #Review [Perms]
     @commands.command(description="Information about a member", usage="<member>")
     @commands.guild_only()
     async def memberinfo(self, ctx, member: commands.MemberConverter=None):
@@ -117,7 +116,8 @@ class utilities(commands.Cog):
         for role in member.roles:
             roleslist.append(role.name)
         for perm in member.guild_permissions:
-            permslist.append(str(perm))
+            permission = str(perm[0])
+            permslist.append(permission.replace("_", " ").capitalize())
 
         embed = discord.Embed(title=f"{member.name}#{member.discriminator}", description=member.mention,
                             thumbnail=member.avatar_url, color=self.colors, timestamp=ctx.message.created_at)
