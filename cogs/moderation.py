@@ -108,12 +108,9 @@ class moderation(commands.Cog):
                                 color=self.colors, timestamp=datetime.datetime.utcnow())
             embed.set_footer(text=f"Command ran by: {ctx.author.name}", icon_url=ctx.author.avatar_url) 
             await ctx.send(embed=embed)
-        except HTTPException:
+        except:
             await ctx.send("Operation Failed")
-        except Forbidden:
-            await ctx.send("I don't have the required permissions to clear messages from this chanel")
             
-    # Review DM message
     @commands.command(description="Kicks a member", usage="<member> [reason]")
     @commands.has_guild_permissions(kick_members=True)
     @commands.bot_has_guild_permissions(kick_members=True)
@@ -121,25 +118,23 @@ class moderation(commands.Cog):
     async def kick(self, ctx, member:commands.MemberConverter, *, reason="No reason provided"):
         if member.id == ctx.bot.user.id:
             return await ctx.send("I can't kick myself :)")
-        try:
-            await member.kick(reason=reason)
-        except Forbidden:
-            return await ctx.send(f"I don't have the required permissions to kick `{member.name}`")
-        except HTTPException:
-            return await ctx.send(f"Failed to kick `{member.name}`, please try again later")
-        
-        embed = discord.Embed(title=f"`{member.name}` has been kicked from the server", description=reason,
-                            thumbnail=member.avatar_url, color=self.colors,
-                            timestamp=datetime.datetime.utcnow())
-        await ctx.send(embed=embed)
-
         DMembed = discord.Embed(title=f"You have been kicked from `{ctx.guild.name}`", description=reason,
                             thumbnail=ctx.guild.icon_url, color=self.colors,
                             timestamp=datetime.datetime.utcnow())
         try:
             await member.send(embed=DMembed)
         except:
-            print("Failed to send DM to user")
+            pass
+        
+        try:
+            await member.kick(reason=reason)
+        except:
+            return await ctx.send(f"Operation Failed")
+        
+        embed = discord.Embed(title=f"`{member.name}` has been kicked from the server", description=reason,
+                            thumbnail=member.avatar_url, color=self.colors,
+                            timestamp=datetime.datetime.utcnow())
+        await ctx.send(embed=embed)
 
     @commands.command(description="Bans a member", usage="<member> [reason]")
     @commands.has_guild_permissions(ban_members=True)
@@ -148,25 +143,24 @@ class moderation(commands.Cog):
     async def ban(self, ctx, member: commands.MemberConverter, *, reason="No reason provided"):
         if member.id == ctx.bot.user.id:
             return await ctx.send("I can't ban my self :)")
-        try:
-            await member.ban(reason=reason)
-        except Forbidden:
-            return await ctx.send(f"I don't have the required permissions to ban `{member.name}`")
-        except HTTPException:
-            return await ctx.send(f"Failed to ban `{member.name}`, please try again later")
-        
-        embed = discord.Embed(title=f"`{member.name}` has been banned from the server", description=reason,
-                            thumbnail=member.avatar_url, color=self.colors,
-                            timestamp=datetime.datetime.utcnow())
-        await ctx.send(embed=embed)
-        
+           
         DMembed = discord.Embed(title=f"You have been banned from `{ctx.guild.name}`", description=reason,
                             thumbnail=ctx.guild.icon_url, color=self.colors,
                             timestamp=datetime.datetime.utcnow())
         try:
             await member.send(embed=DMembed)
         except:
-            pass
+            pass               
+        try:
+            await member.ban(reason=reason)
+        except:
+            return await ctx.send(f"Failed to ban `{member.name}`, please try again later")
+        
+        embed = discord.Embed(title=f"`{member.name}` has been banned from the server", description=reason,
+                            thumbnail=member.avatar_url, color=self.colors,
+                            timestamp=datetime.datetime.utcnow())
+        await ctx.send(embed=embed)
+
 
     # How dis work?
     @commands.command(description="Unbans a member", usage="<member> [reason]")
@@ -197,9 +191,9 @@ class moderation(commands.Cog):
         except:
             pass
 
-    # Time Duration is wrong (in message)
+    # Entire thing got fucked
     @commands.command(description="Mutes a member", usage="<user> [time] [reason]")
-    @commands.has_guild_permissions(kick_members=True) #Change
+    @commands.has_guild_permissions(manage_guild=True) #Change
     @commands.bot_has_guild_permissions(manage_roles=True)
     @commands.guild_only()
     async def mute(self, ctx, member: commands.MemberConverter, time: timeConverter = None, *, reason="No reason provided"):
@@ -242,10 +236,10 @@ class moderation(commands.Cog):
                 DMembed.add_field(name="Muted for: ", value=f"{hours} hours, {minutes} minutes, {seconds} seconds")
             elif int(minutes):
                 embed.add_field(name="Muted for: ", value=f"{minutes} minutes, {seconds} seconds")
-                DMembed.add_field(name="Muted for: ", value=f"{hours} hours, {minutes} minutes, {seconds} seconds")
+                DMembed.add_field(name="Muted for: ", value=f"{minutes} minutes, {seconds} seconds")
             elif int(seconds):
                 embed.add_field(name="Muted for: ", value=f"{seconds} seconds")
-                DMembed.add_field(name="Muted for: ", value=f"{hours} hours, {minutes} minutes, {seconds} seconds")
+                DMembed.add_field(name="Muted for: ", value=f"{seconds} seconds")
         await ctx.send(embed=embed)
         try:
             await member.send(embed=DMembed)
