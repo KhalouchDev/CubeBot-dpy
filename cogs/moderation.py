@@ -285,73 +285,6 @@ class moderation(commands.Cog):
             await member.send(embed=DMembed)
         except:
             pass
-    
-    # Prisoner role creation not working
-    @commands.command(description="Send a member to prison", usage='<member> [reason]')
-    @commands.has_permissions(manage_guild=True)
-    @commands.bot_has_permissions(manage_channels=True, manage_roles=True)
-    @commands.guild_only()
-    async def prison(self, ctx, member:commands.MemberConverter, *, reason="No reason provided"):
-        if member.id == ctx.bot.user.id:
-            return await ctx.send("I can't send myself to prison")
-        
-        prisonChannel = discord.utils.get(member.guild.text_channels, name="prisoners-talk")
-        if not prisonChannel:
-            overwrites = {
-                ctx.guild.default_role: discord.PermissionOverwrite(read_messages=False),
-                ctx.guild.me: discord.PermissionOverwrite(read_messaged=True)
-            }
-            await ctx.guild.create_text_channel(name="prisoners-talk", overwrites=overwrites)
-
-        prisonerRole = discord.utils.get(ctx.guild.roles, name="Prisoner")
-        if not prisonerRole:
-            prisonerRole = await ctx.guild.create_role(name="Prisoner")
-            for channel in ctx.guild.channels:
-                if channel.name != "prisoners-talk":
-                    await channel.set_permissions(prisonerRole, speak=False, send_messages=False,
-                                                read_messages=False, read_message_history=False)
-        try:
-            await member.edit(roles=[])
-            await member.add_roles(prisonerRole)
-            embed = discord.Embed(title=f"`{member.name}` has been sent to prison", description=reason,
-                                thumbnail=member.avatar_url, color=self.colors, timestamp=datetime.datetime.utcnow())
-            DMembed = discord.Embed(title=f"You have been sent to prison in `{ctx.guild.name}` server", description=reason,
-                                    thumbnail=ctx.guild.icon_url, color=self.colors, timestamp=datetime.datetime.utcnow())
-
-            await ctx.send(embed=embed)
-            try:
-                await member.send(embed=DMembed)
-            except:
-                pass
-        except Forbidden:
-            await ctx.send(f"I don't have the required perms to send `{member.name}` to prison")
-        except HTTPException:
-            await ctx.send("Operation failed, please try again later")
-
-    @commands.command(description="Remove a member from prison", usage="<member> [reason]")
-    @commands.has_guild_permissions(manage_guild=True)
-    @commands.bot_has_guild_permissions(manage_roles=True, manage_channels=True)
-    @commands.guild_only()
-    async def unprison(self, ctx, member: commands.MemberConverter, reason="No reason provided"):
-        prisonerRole = discord.utils.get(ctx.guild.roles, name="Prisoner")
-        if not prisonerRole:
-            return
-
-        try:
-            await member.remove_roles(prisonerRole)
-            embed = discord.Embed(title=f"`{member.name}` has been removed to prison", description=reason,
-                                thumbnail=member.avatar_url, color=self.colors, timestamp=datetime.datetime.utcnow())
-            DMembed = discord.Embed(title=f"You have been sent to prison in `{ctx.guild.name}` server", description=reason,
-                                    thumbnail=ctx.guild.icon_url, color=self.colors, timestamp=datetime.datetime.utcnow())
-            await ctx.send(embed=embed)
-            try:
-                await member.send(embed=DMembed)
-            except:
-                pass
-        except Forbidden:
-            await ctx.send(f"I don't have the required perms to remove `{member.name}` from prison")
-        except HTTPException:
-            await ctx.send("Operation failed")
 
     @commands.command(description="Remove a role from a member", usage="<member> <role> [reason]")
     @commands.has_guild_permissions(manage_roles=True)
@@ -415,15 +348,16 @@ class moderation(commands.Cog):
         filter_dict = {"user_id": member.id, "guild_id": member.guild.id}
         if warn:
             filter_dict["number"] = warn
+        # Add confirmation to delete all warns here
 
         was_deleted = await self.client.warns.delete_by_custom(filter_dict)
-        if was_deleted and was_deleted.acknowleged:
+        if was_deleted and was_deleted.acknowledged:
             if warn:
-                return await ctx.send(f"Deleted warn number `{warn}` from `{member.name}`")
+                return await ctx.send(f"I deleted warn number `{warn}` for `{member.name}`")
 
-            return await ctx.send(f"Deleted `{was_deleted.deleted_count}` warns for `{member.name}`")
+            return await ctx.send(f"I deleted `{was_deleted.deleted_count}` warns for `{member.name}`")
 
-        await ctx.send(f"Warn number `{warn}` was not found for `{member.display_name}`")
+        await ctx.send(f"I could not find any warns for `{member.name}` to delete matching your input")
     
     # Does not send mention of warner in the embed
     @commands.command(description="List all warns of a member (can be used by all members)", usage="<member>")
