@@ -8,11 +8,8 @@ from dateutil.relativedelta import relativedelta
 from discord.errors import Forbidden, HTTPException
 from discord.ext.commands.core import check
 from discord.ext import commands, tasks
-from discord_components import DiscordComponents, Button, ButtonStyle, InteractionType
+from discord_components import Button, ButtonStyle
 from copy import deepcopy
-
-from discord_components import component
-from discord_components.interaction import Interaction
 
 #local import
 from utils.util import Pag
@@ -98,7 +95,7 @@ class moderation(commands.Cog):
         if res.channel == ctx.channel:
             if res.component.label == "Yes":
                 await ctx.send(f"{res.component.label} was clicked")
-                await res.respond(type=InteractionEventType.ChannelMessageWithSource ,content=f"{res.component.label} clicked")
+                await res.send(f"{res.component.label} clicked")
             else:
                 await ctx.send("No was clicked")
             """
