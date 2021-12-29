@@ -154,7 +154,7 @@ class fun(commands.Cog):
         url = "https://dad-jokes.p.rapidapi.com/random/joke"
 
         headers = {
-            'x-rapidapi-key': "bc5e15ace2msh7a484e5730f3f7dp1f8048jsn341f62c25600",
+            'x-rapidapi-key': self.client.joke_api_key,
             'x-rapidapi-host': "dad-jokes.p.rapidapi.com"
         }
 

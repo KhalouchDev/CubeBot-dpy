@@ -44,7 +44,7 @@ async def get_prefix(client, message):
         return commands.when_mentioned_or(client.defaultPrefix)(client, message)
 
 # Defining stuff
-defaultPrefix = '&'
+defaultPrefix = '$'
 secret_file = json.load(open(cwd+'/client_config/secrets.json'))
 owner_id = 658338910312857640
 intents = discord.Intents.all()

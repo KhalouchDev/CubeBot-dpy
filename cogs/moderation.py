@@ -83,25 +83,6 @@ class moderation(commands.Cog):
 
 
     # Commands
-    @commands.command()
-    async def test(self, ctx):
-        await ctx.send("This is a test",
-                       components=[
-                           Button(style=ButtonStyle.red, label="No"),
-                           Button(style=ButtonStyle.green, label="Yes")
-                           ]
-                       )
-        res = await self.client.wait_for("button_click")
-        if res.channel == ctx.channel:
-            if res.component.label == "Yes":
-                await ctx.send(f"{res.component.label} was clicked")
-                await res.send(f"{res.component.label} clicked")
-            else:
-                await ctx.send("No was clicked")
-            """
-            await res.respond(content=f"{res.component.label} clicked")
-            await ctx.send(f"{res.component.label} clicked")"""
-    
     @commands.command(description="Clears messages from text channel", usage='<amount> [reason]')
     @commands.has_guild_permissions(manage_messages=True)
     @commands.bot_has_guild_permissions(manage_messages=True)
@@ -168,7 +149,7 @@ class moderation(commands.Cog):
 
 
     # How dis work?
-    @commands.command(description="Unbans a member", usage="<member> [reason]")
+    @commands.command(description="This command is currently disbaled", usage="<member> [reason]", enabled=False)
     @commands.has_guild_permissions(ban_members=True)
     @commands.guild_only()
     async def unban(self, ctx, member: commands.MemberConverter, *, reason = "No reason provided"):
