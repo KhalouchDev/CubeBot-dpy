@@ -55,8 +55,11 @@ client.config_token = secret_file["token"]
 client.connection_url = secret_file["mongo"]
 client.joke_api_key = secret_file["x-rapidapi-key"]
 client.weather_api_key = secret_file["weather-api-key"]
+client.dbl_token = secret_file["dbl-token"]
 
 logging.basicConfig(level=logging.INFO)
+
+topgg_client = topgg.DBLClient(client, client.dbl_token, autopost=True, post_shard_count=True)
 
 client.version = 2.7
 
@@ -102,6 +105,10 @@ async def on_ready():
     print("Intialized Database\n-----")
     print(f"Currently in {len(client.guilds)} guilds\n-----")
     print(f"{client.user.name} is ready!")
+    
+@client.event
+async def on_autopost_succes():
+    print(f"Posted server count ({topgg_client.guild_count}), shard count ({client.shard_count})")
 
 @client.event
 async def on_message(message):
